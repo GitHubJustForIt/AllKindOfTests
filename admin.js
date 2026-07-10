@@ -1,7 +1,7 @@
 "use strict";
 
 const SHEETS_API =
-  "https://script.google.com/macros/s/AKfycbz7poA9onjIuZQddOOL_8JoneqCMs0NQZZczb69Wtp5BhgeC0pZCvYZGe2QX0vRzAWY/exec";
+  "https://script.google.com/macros/s/AKfycbzxaTffjMadwWagMiTxxVxyc6QkLDN8AuYP2yiz75CyguhnXGWHII4iR7uABPa2eD6I/exec";
 
 const ADMIN_CODE = "19.08.2011";
 const ADMIN_SESSION_KEY = "plr_admin_ok";
