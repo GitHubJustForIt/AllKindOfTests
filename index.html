@@ -35,6 +35,16 @@
       <h1>An Immersive<br />Roblox Phantasialand Experience</h1>
       <p class="lede">Step into richly themed worlds, ride reimagined attractions, and enjoy <strong>brilliant in-world dining</strong> — all free, all inside Roblox. Pick an open day below and reserve your spot.</p>
       <span class="free-badge"><span class="dot"></span> Every ticket is free — limited daily spots</span>
+
+      <!-- Site-wide banner image, mirrors the banner used at the top of the e-ticket -->
+      <div class="hero-image">
+        <img
+          id="heroBannerImg"
+          src="https://cdn.discordapp.com/attachments/1510354348217991350/1525095438301134929/Screenshot_299.png?ex=6a52234f&is=6a50d1cf&hm=66262401b771276167a65d881470132c99b76771c2a70d91e6bb0c0dfc059ccf&"
+          alt="Phantasialand-Roblox"
+          onerror="this.closest('.hero-image').style.display='none';"
+        />
+      </div>
     </section>
 
     <!-- Daily session banner: shown automatically when today's date has an open entering session -->
@@ -66,7 +76,7 @@
 
     <section class="calendar-section">
       <h2 class="section-title">Choose Your Visit Date</h2>
-      <p class="section-sub">All tickets are free. Up to two tickets per day, per order.</p>
+      <p class="section-sub">All tickets are free. Up to two tickets per day, per order — one per Roblox username, per day.</p>
 
       <div class="month-nav">
         <button class="nav-arrow" id="prevMonthBtn" type="button" aria-label="Previous month">
@@ -163,22 +173,31 @@
       <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <div class="success-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <h3>You're booked!</h3>
-      <p class="modal-desc">Your e-tickets are ready. Screenshot them or download as PDF — you'll need the barcode on your visit day.</p>
+      <p class="modal-desc">Your e-tickets are ready. Screenshot them, save the barcode as text, or download as PDF — you'll need the barcode on your visit day.</p>
       <div id="successTicketList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
       <button class="btn btn-primary" type="button" data-close-modal>Done</button>
     </div>
   </div>
 
   <!-- ================================================================ -->
-  <!-- MODAL: Ticket viewer                                              -->
+  <!-- MODAL: Ticket viewer (fullscreen)                                 -->
   <!-- ================================================================ -->
   <div class="modal-overlay" id="modalTicket">
     <div class="modal-card ticket-modal">
-      <button class="modal-close-x" type="button" data-close-modal aria-label="Close" style="z-index:2;"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
-      <div id="ticketMount"></div>
-      <div style="display:flex; gap:10px; padding:16px 28px 24px; background:#f5f7f9;">
-        <button class="btn btn-ghost btn-sm" type="button" id="downloadPdfBtn" style="flex:1;">Download as PDF</button>
-        <button class="btn btn-primary btn-sm" type="button" data-close-modal style="flex:1;">Close</button>
+      <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <div class="ticket-modal-scroll">
+        <div id="ticketMount"></div>
+      </div>
+      <div class="ticket-modal-actions">
+        <p class="tma-note">Kopiere den Barcode oder lade ihn als E-Ticket-Textdatei herunter. Beides kannst du bei der Daily Session zur Verifizierung hochladen oder einfügen.</p>
+        <div class="tma-row">
+          <button class="btn btn-ghost btn-sm" type="button" id="copyBarcodeBtn">Barcode kopieren</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="downloadBarcodeTxtBtn">Als Text herunterladen</button>
+        </div>
+        <div class="tma-row">
+          <button class="btn btn-ghost btn-sm" type="button" id="downloadPdfBtn">Download as PDF</button>
+          <button class="btn btn-primary btn-sm" type="button" data-close-modal>Close</button>
+        </div>
       </div>
     </div>
   </div>
@@ -207,6 +226,12 @@
         <label for="enterTicketImage">Upload a screenshot of your e-ticket to auto-fill the barcode</label>
         <input id="enterTicketImage" type="file" accept="image/*" style="font-size:12.5px;" />
         <div id="enterScanHint" class="field-hint"></div>
+      </div>
+
+      <div class="field">
+        <label for="enterTicketText">Or upload the downloaded barcode text file (.txt)</label>
+        <input id="enterTicketText" type="file" accept=".txt,text/plain" style="font-size:12.5px;" />
+        <div id="enterTextHint" class="field-hint"></div>
       </div>
 
       <div id="enterResultBox" style="display:none;"></div>
