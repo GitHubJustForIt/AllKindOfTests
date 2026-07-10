@@ -13,13 +13,33 @@ const ROBLOX_CLIENT_ID = "3966608874463146474";
 const ROBLOX_AUTHORIZE_URL = "https://apis.roblox.com/oauth/v1/authorize";
 const ROBLOX_SCOPE = "openid profile";
 
-// Must exactly match a Redirect URI registered in your Roblox OAuth app.
+// Must exactly match a Redirect URI registered in your Roblox OAuth app,
+// character for character (protocol, host, path, trailing slash — all of
+// it). If you see "Redirect URI is invalid for this application" this is
+// almost always the cause: whatever URL this line builds at runtime is
+// NOT registered, byte-for-byte, in the Roblox Creator Dashboard under
+// your app's OAuth 2.0 → Redirect URIs. Open your browser console and
+// log REDIRECT_URI right before it's used, then paste that exact string
+// into the dashboard. If your site is reachable at more than one URL
+// (e.g. with and without a trailing slash, or on two domains), register
+// all of them, or hardcode a single canonical one here instead of
+// deriving it dynamically.
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 
 const CART_STORAGE_KEY = "plr_cart_v1";
 const OAUTH_STATE_KEY = "plr_oauth_state";
 const OAUTH_PENDING_DATE_KEY = "plr_oauth_pending_date";
 const MAX_PER_DAY_IN_CART = 2;
+
+// Add as many banner images as you like — the homepage banner will
+// cross-fade smoothly between them. A single entry just shows a static
+// banner with no dots/animation.
+const HERO_IMAGES = [
+  "https://cdn.discordapp.com/attachments/1510354348217991350/1525095438301134929/Screenshot_299.png?ex=6a52234f&is=6a50d1cf&hm=66262401b771276167a65d881470132c99b76771c2a70d91e6bb0c0dfc059ccf&",
+  // "https://example.com/your-second-banner.png",
+  // "https://example.com/your-third-banner.png",
+];
+const HERO_ROTATE_MS = 5500;
 
 /* ==========================================================================
    SHEETS API HELPERS
@@ -86,10 +106,6 @@ function formatDateLong(dateStr) {
   const [y, m, d] = dateStr.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
 }
-function formatDateShort(dateStr) {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
 
 const USERNAME_RE = /^[A-Za-z0-9_]{3,20}$/;
 function validateUsername(value) {
@@ -103,7 +119,7 @@ function validateUsername(value) {
    ========================================================================== */
 
 const state = {
-  contingents: new Map(), // date -> { capacity, booked }
+  contingents: new Map(), // date -> { capacity, booked, usernames: [] }
   settings: {},
   cart: [], // { id, date, username }
   calendarMonth: new Date(new Date().setDate(1)),
@@ -125,7 +141,14 @@ function restoreCart() {
 async function loadContingents() {
   const rows = await apiGet("Contingents");
   state.contingents = new Map(
-    rows.map((r) => [String(r.date), { capacity: Number(r.capacity) || 0, booked: Number(r.booked) || 0 }])
+    rows.map((r) => [
+      String(r.date),
+      {
+        capacity: Number(r.capacity) || 0,
+        booked: Number(r.booked) || 0,
+        usernames: String(r.usernames || "").split(",").map((s) => s.trim()).filter(Boolean),
+      },
+    ])
   );
 }
 async function loadSettings() {
@@ -143,6 +166,71 @@ async function loadSessionsAndMaybeShowBanner() {
   } else {
     banner.classList.remove("show");
   }
+}
+
+/* ==========================================================================
+   ONE TICKET PER USERNAME PER DAY
+   ========================================================================== */
+
+// The server (BOOK_TICKET) is the source of truth and rejects duplicates
+// no matter what — this is only a fast, friendly client-side pre-check so
+// people see the message immediately instead of after a round trip.
+function usernameAlreadyHasTicket(dateStr, username) {
+  const c = state.contingents.get(dateStr);
+  const already = c ? c.usernames.some((u) => u.toLowerCase() === username.toLowerCase()) : false;
+  const inCart = state.cart.some((item) => item.date === dateStr && item.username.toLowerCase() === username.toLowerCase());
+  return already || inCart;
+}
+
+/* ==========================================================================
+   HERO BANNER (smooth cross-fade, supports any number of images)
+   ========================================================================== */
+
+function initHeroCarousel() {
+  const mount = document.getElementById("heroCarousel");
+  if (!mount) return;
+  const images = HERO_IMAGES.filter(Boolean);
+  if (images.length === 0) {
+    mount.closest(".hero-image").style.display = "none";
+    return;
+  }
+
+  mount.innerHTML = "";
+  const layers = images.map((src, i) => {
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = "Phantasialand-Roblox";
+    img.className = "hero-layer" + (i === 0 ? " show" : "");
+    img.addEventListener("error", () => { img.style.display = "none"; });
+    mount.appendChild(img);
+    return img;
+  });
+
+  const dotsWrap = document.getElementById("heroDots");
+  if (dotsWrap) {
+    dotsWrap.innerHTML = "";
+    if (images.length > 1) {
+      images.forEach((_, i) => {
+        const dot = document.createElement("span");
+        dot.className = "hero-dot" + (i === 0 ? " active" : "");
+        dotsWrap.appendChild(dot);
+      });
+    }
+  }
+
+  if (images.length <= 1) return;
+
+  let active = 0;
+  setInterval(() => {
+    const next = (active + 1) % images.length;
+    layers[active].classList.remove("show");
+    layers[next].classList.add("show");
+    if (dotsWrap) {
+      dotsWrap.children[active].classList.remove("active");
+      dotsWrap.children[next].classList.add("active");
+    }
+    active = next;
+  }, HERO_ROTATE_MS);
 }
 
 /* ==========================================================================
@@ -270,6 +358,10 @@ function updateCartUI() {
 }
 
 function addToCart(date, username) {
+  if (usernameAlreadyHasTicket(date, username)) {
+    showToast(`@${username} already has a ticket for ${formatDateLong(date)}.`, "error");
+    return false;
+  }
   const countForDate = cartCountForDate(date);
   if (countForDate >= MAX_PER_DAY_IN_CART) {
     showToast(`You can add at most ${MAX_PER_DAY_IN_CART} tickets for the same day.`, "error");
@@ -285,6 +377,15 @@ function addToCart(date, username) {
 
 document.getElementById("cartOpenBtn").addEventListener("click", () => showModal("modalCart"));
 document.getElementById("cartBarBtn").addEventListener("click", () => showModal("modalCart"));
+
+/* ==========================================================================
+   TERMS OF SERVICE
+   ========================================================================== */
+
+const tosBtn = document.getElementById("tosBtn");
+if (tosBtn) tosBtn.addEventListener("click", () => showModal("modalTerms"));
+const tosFooterBtn = document.getElementById("tosFooterBtn");
+if (tosFooterBtn) tosFooterBtn.addEventListener("click", () => showModal("modalTerms"));
 
 /* ==========================================================================
    ADD-TO-CART FLOW (Roblox OAuth or manual username)
@@ -368,7 +469,7 @@ async function resumeOAuthIfNeeded() {
 }
 
 /* ==========================================================================
-   CHECKOUT
+   CHECKOUT — one atomic BOOK_TICKET call per item, server is authoritative
    ========================================================================== */
 
 document.getElementById("cartConfirmBtn").addEventListener("click", async () => {
@@ -384,20 +485,14 @@ document.getElementById("cartConfirmBtn").addEventListener("click", async () => 
 
   for (const item of state.cart) {
     try {
-      await apiPost({ sheet: "Contingents", action: "INCREMENT_BOOKING", date: item.date, username: item.username });
-      const ticket = buildTicketRecord(item.date, item.username);
-      await apiPost({
-        sheet: "Tickets",
-        action: "APPEND",
-        values: [ticket.username, ticket.date, ticket.barcode, ticket.reservation_number, ticket.created_at, ""],
-      });
-      succeeded.push(ticket);
+      const result = await apiPost({ action: "BOOK_TICKET", date: item.date, username: item.username });
+      succeeded.push(result.ticket);
     } catch (err) {
       failed.push({ item, message: err.message });
     }
   }
 
-  state.cart = state.cart.filter((item) => !succeeded.some((t) => t.date === item.date && t.username === item.username));
+  state.cart = state.cart.filter((item) => !succeeded.some((t) => t.date === item.date && t.username.toLowerCase() === item.username.toLowerCase()));
   persistCart();
   await loadContingents();
   renderCalendar();
@@ -410,7 +505,7 @@ document.getElementById("cartConfirmBtn").addEventListener("click", async () => 
     showSuccessModal(succeeded);
   }
   if (failed.length > 0) {
-    showToast(`${failed.length} ticket(s) couldn't be booked (day may have filled up).`, "error");
+    failed.forEach((f) => showToast(`@${f.item.username}, ${formatDateLong(f.item.date)}: ${f.message}`, "error"));
   }
 });
 
@@ -430,27 +525,8 @@ function showSuccessModal(tickets) {
 }
 
 /* ==========================================================================
-   TICKET GENERATION
+   TICKET GENERATION (display only — barcode itself comes from the server)
    ========================================================================== */
-
-function generateBarcode() {
-  const rand = window.crypto && crypto.randomUUID
-    ? crypto.randomUUID().replace(/-/g, "").toUpperCase()
-    : String(Math.random()).slice(2) + Date.now();
-  return "PLR-" + rand.slice(0, 16);
-}
-
-function buildTicketRecord(date, username) {
-  const barcode = generateBarcode();
-  const reservationNumber = "PLR-" + date.replace(/-/g, "") + "-" + barcode.slice(4, 9);
-  return {
-    username,
-    date,
-    barcode,
-    reservation_number: reservationNumber,
-    created_at: new Date().toISOString(),
-  };
-}
 
 function renderTicketHTML(ticket) {
   const bannerUrl = state.settings.bannerImageUrl || "";
@@ -471,7 +547,7 @@ function renderTicketHTML(ticket) {
         <h1>Your Phantasialand-Roblox Ticket</h1>
         <p class="ticket-intro">Your ticket to a world full of fantasy. For adventures across the best attractions and a taste of the finest in-world dining, live shows, and a big new experience for the whole family.</p>
         <div class="ticket-howto">How to use your e-ticket</div>
-        <p class="ticket-howto-desc">Show this on your device, or download it as a PDF. On your visit date, use it in the Entering Panel on the homepage to unlock the join link.</p>
+        <p class="ticket-howto-desc">Download the barcode as a text file below. On your visit date, upload it in the Entering Panel on the homepage to unlock the join link — your username and barcode will be filled in automatically.</p>
       </div>
       <div class="ticket-divider"><span class="line"></span><span class="ring"></span><span class="line"></span></div>
       <div class="ticket-grid">
@@ -487,7 +563,7 @@ function renderTicketHTML(ticket) {
         <ul>
           <li>This e-ticket is valid for one person on the stated date only.</li>
           <li>The name printed on this e-ticket cannot be changed and is not transferable.</li>
-          <li>Keep your barcode private — it's how you'll be checked in on your visit day.</li>
+          <li>Keep your barcode file private — it's how you'll be checked in on your visit day.</li>
           <li>This e-ticket becomes invalid once the visit date has passed.</li>
         </ul>
       </div>
@@ -514,32 +590,31 @@ function drawTicketQrCodes(ticket) {
 function openTicketModal(ticket) {
   document.getElementById("ticketMount").innerHTML = renderTicketHTML(ticket);
   drawTicketQrCodes(ticket);
-  document.getElementById("downloadPdfBtn").onclick = () => downloadTicketAsPdf(ticket);
+  document.getElementById("downloadBarcodeTxtBtn").onclick = () => downloadBarcodeAsTxt(ticket);
   showModal("modalTicket");
 }
 
-async function downloadTicketAsPdf(ticket) {
-  const btn = document.getElementById("downloadPdfBtn");
-  const original = btn.textContent;
-  btn.textContent = "Preparing…";
-  btn.disabled = true;
-  try {
-    const node = document.getElementById("ticketPrintArea");
-    const canvas = await html2canvas(node, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
-    const imgData = canvas.toDataURL("image/png");
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const imgHeight = (canvas.height * pageWidth) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 16, pageWidth, imgHeight);
-    pdf.save(`phantasialand-roblox-ticket-${ticket.date}.pdf`);
-  } catch (err) {
-    console.error(err);
-    showToast("Couldn't create the PDF. You can still screenshot the ticket.", "error");
-  } finally {
-    btn.textContent = original;
-    btn.disabled = false;
-  }
+// The e-ticket "download" is a small plain-text file — username + barcode
+// + date — so the Entering Panel can auto-fill BOTH fields from one
+// upload. This is now the only way to export a ticket (no PDF/image).
+function downloadBarcodeAsTxt(ticket) {
+  const contents = [
+    "PHANTASIALAND-ROBLOX E-TICKET",
+    "username: " + ticket.username,
+    "barcode: " + ticket.barcode,
+    "date: " + ticket.date,
+    "reservation_number: " + ticket.reservation_number,
+  ].join("\n");
+  const blob = new Blob([contents], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `phantasialand-roblox-eticket-${ticket.date}-${ticket.username}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast("E-ticket saved as a text file.");
 }
 
 /* ==========================================================================
@@ -552,38 +627,39 @@ document.getElementById("sessionEnterBtn").addEventListener("click", () => {
   showModal("modalEnter");
 });
 
-document.getElementById("enterTicketImage").addEventListener("change", (e) => {
+// Parses the .txt e-ticket produced by downloadBarcodeAsTxt() above and
+// fills in BOTH the username and barcode fields automatically.
+document.getElementById("enterTicketText").addEventListener("change", (e) => {
   const file = e.target.files[0];
-  const hint = document.getElementById("enterScanHint");
+  const hint = document.getElementById("enterTextHint");
   if (!file) return;
-  hint.textContent = "Scanning…";
-  hint.className = "field-hint";
 
-  const img = new Image();
   const reader = new FileReader();
-  reader.onload = (ev) => { img.src = ev.target.result; };
-  img.onload = () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = typeof jsQR === "function" ? jsQR(imageData.data, imageData.width, imageData.height) : null;
-    if (code && code.data) {
-      document.getElementById("enterBarcodeInput").value = code.data;
-      hint.textContent = "Barcode found and filled in below.";
+  reader.onload = (ev) => {
+    const text = String(ev.target.result || "");
+    const usernameMatch = text.match(/username:\s*@?([^\r\n]+)/i);
+    const barcodeMatch = text.match(/barcode:\s*([^\r\n]+)/i);
+
+    if (barcodeMatch) {
+      document.getElementById("enterBarcodeInput").value = barcodeMatch[1].trim();
+    }
+    if (usernameMatch) {
+      document.getElementById("enterUsernameInput").value = usernameMatch[1].trim();
+    }
+
+    if (barcodeMatch && usernameMatch) {
+      hint.textContent = "Username and barcode filled in from your e-ticket file.";
       hint.className = "field-hint ok";
     } else {
-      hint.textContent = "Couldn't find a QR code in that image — enter the barcode manually.";
+      hint.textContent = "Couldn't read that file — enter your details manually.";
       hint.className = "field-hint error";
     }
   };
-  reader.readAsDataURL(file);
+  reader.readAsText(file);
 });
 
 document.getElementById("enterSubmitBtn").addEventListener("click", async () => {
-  const username = document.getElementById("enterUsernameInput").value.trim();
+  const username = document.getElementById("enterUsernameInput").value.trim().replace(/^@/, "");
   const barcode = document.getElementById("enterBarcodeInput").value.trim();
   const resultBox = document.getElementById("enterResultBox");
 
@@ -617,6 +693,7 @@ document.getElementById("enterSubmitBtn").addEventListener("click", async () => 
 async function boot() {
   restoreCart();
   document.getElementById("footerYear").textContent = new Date().getFullYear();
+  initHeroCarousel();
 
   await resumeOAuthIfNeeded();
 
