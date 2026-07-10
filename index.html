@@ -3,261 +3,153 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Phantasialand-Roblox — Book Your Visit</title>
-<meta name="description" content="Link your Roblox account and book your day at the Phantasialand-Roblox experience." />
+<title>Phantasialand-Roblox — Book Your Free Visit</title>
+<meta name="description" content="Reserve your free day at the Phantasialand-Roblox experience." />
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Ambient background -->
-  <div class="liquid-bg" aria-hidden="true">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+  <div class="topbar wrap" style="max-width:920px; margin:0 auto;">
+    <button class="pill-btn" id="cartOpenBtn" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 6h16l-1.5 10.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 6V5a4 4 0 0 1 8 0v1" stroke="currentColor" stroke-width="1.6"/></svg>
+      CART
+      <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+    </button>
+
+    <div class="brand">
+      <span class="brand-main">Phantasialand</span>
+      <span class="brand-sub">· ROBLOX ·</span>
+      <span class="brand-tag">FAN EXPERIENCE</span>
+    </div>
+
+    <button class="pill-btn icon-pill" id="infoBtn" type="button" title="About this project" aria-label="About this project">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5.5M12 8v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+
+    <a class="admin-link" href="admin.html">ADMIN</a>
   </div>
-  <div class="bubble-field" id="bubbleField" aria-hidden="true"></div>
 
-  <main class="app">
+  <main class="wrap">
 
-    <!-- ============================================================ -->
-    <!-- SCREEN 1 — Link Roblox account                                -->
-    <!-- ============================================================ -->
-    <section id="screen-auth" class="screen active">
-      <div class="glass auth-card">
-        <div class="brand-mark">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 4L20 4L17.5 20L6.5 20L4 4Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
-            <path d="M8.5 8.5H15.5V15.5H8.5V8.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <h1>Link your Roblox account</h1>
-        <p class="sub">Enter your Roblox username to continue. If you've linked an account before, you'll be taken straight in.</p>
+    <section class="hero">
+      <h1>An Immersive<br />Roblox Phantasialand Experience</h1>
+      <p class="lede">Step into richly themed worlds, ride reimagined attractions, and enjoy <strong>brilliant in-world dining</strong> — all free, all inside Roblox. Pick an open day below and reserve your spot.</p>
+      <span class="free-badge"><span class="dot"></span> Every ticket is free — limited daily spots</span>
+    </section>
 
-        <form id="authForm" novalidate>
-          <div class="field">
-            <label for="usernameInput">Roblox username</label>
-            <div class="field-input-wrap">
-              <span class="at">@</span>
-              <input id="usernameInput" name="username" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="your_roblox_name" maxlength="32" required />
-            </div>
-            <div id="fieldHint" class="field-hint" aria-live="polite"></div>
-          </div>
+    <!-- Daily session banner: shown automatically when today's date has an open entering session -->
+    <div class="session-banner" id="sessionBanner">
+      <div class="sb-text">
+        <strong>Today's entrance is open</strong>
+        <span>Enter your booking details to unlock the join link.</span>
+      </div>
+      <button id="sessionEnterBtn" type="button">Enter now</button>
+    </div>
 
-          <button id="submitBtn" type="submit" class="btn btn-primary">
-            <span class="spinner" aria-hidden="true"></span>
-            <span class="btn-label">Link account</span>
-          </button>
-        </form>
-
-        <p class="legal-note">We only store your Roblox username to recognize your account. No password, no access to your real Roblox account.</p>
+    <section class="feature-strip">
+      <div class="feature-card">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12c2-6 6-9 8-9s6 3 8 9-6 9-8 9-10-3-8-9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+        <h3>Themed Worlds</h3>
+        <p>Fully realized lands built for exploring, not just walking through.</p>
+      </div>
+      <div class="feature-card">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10l8-6 8 6v10M9 20v-6h6v6" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+        <h3>Signature Attractions</h3>
+        <p>Rides and moments designed around real Roblox mechanics.</p>
+      </div>
+      <div class="feature-card">
+        <div class="f-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3v18M6 8h9a3 3 0 0 1 0 6H6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3>Brilliant Dining</h3>
+        <p>In-world restaurants and snacks that fit every land's story.</p>
       </div>
     </section>
 
-    <!-- ============================================================ -->
-    <!-- SCREEN 2 — Cute intro (new accounts only)                     -->
-    <!-- ============================================================ -->
-    <section id="screen-intro" class="screen">
-      <div class="glass intro-card">
-        <span class="intro-emoji">🎈</span>
-        <h2>Welcome, <span id="introUsername" class="username-highlight">Guest</span>!</h2>
-        <p>So glad you're here. Your account is now linked — here's a quick look at what's next.</p>
+    <section class="calendar-section">
+      <h2 class="section-title">Choose Your Visit Date</h2>
+      <p class="section-sub">All tickets are free. Up to two tickets per day, per order.</p>
 
-        <div class="intro-steps">
-          <div class="intro-step"><span class="dot">1</span><span>Your account is saved and ready to book with.</span></div>
-          <div class="intro-step"><span class="dot">2</span><span>Pick an open day on the calendar to reserve your visit.</span></div>
-          <div class="intro-step"><span class="dot">3</span><span>Your e-tickets show up right on your homepage.</span></div>
-        </div>
-
-        <button id="introContinueBtn" type="button" class="btn btn-primary">
-          <span class="spinner" aria-hidden="true"></span>
-          <span class="btn-label">Let's go</span>
+      <div class="month-nav">
+        <button class="nav-arrow" id="prevMonthBtn" type="button" aria-label="Previous month">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span class="month-label" id="monthLabel">Month Year</span>
+        <button class="nav-arrow" id="nextMonthBtn" type="button" aria-label="Next month">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
-    </section>
 
-    <!-- ============================================================ -->
-    <!-- SCREEN 3 — Homepage                                           -->
-    <!-- ============================================================ -->
-    <section id="screen-home" class="screen">
-      <div class="home-wrap">
-
-        <div class="topbar glass">
-          <div class="topbar-left">
-            <span class="brand-dot" aria-hidden="true"></span>
-            <span>Phantasialand-Roblox</span>
-          </div>
-          <div class="topbar-right">
-            <span class="chip"><span class="avatar" id="homeAvatarInitial">R</span><span id="homeUsername">username</span></span>
-            <button id="muteBtn" class="icon-btn mute-toggle" type="button" title="Mute/unmute music" aria-label="Mute or unmute background music">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 9v6h4l5 4V5L8 9H4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-                <path class="wave" d="M17 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-            </button>
-            <button id="logoutBtn" class="icon-btn" type="button" title="Unlink account" aria-label="Unlink account">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="glass hero-card">
-          <span class="badge"><span class="pulse"></span> Booking now open</span>
-          <h1>An immersive <span class="accent-word">Roblox Phantasialand</span> experience</h1>
-          <p class="tag">Reserve your day, step into richly themed worlds, ride reimagined attractions, and enjoy a dining experience built to match — all inside Roblox.</p>
-        </div>
-
-        <div class="feature-row">
-          <div class="glass feature-card">
-            <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12c2-6 6-9 8-9s6 3 8 9-6 9-8 9-10-3-8-9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
-            <h3>Themed worlds</h3>
-            <p>Fully realized lands built for exploring, not just walking through.</p>
-          </div>
-          <div class="glass feature-card">
-            <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20V10l8-6 8 6v10M9 20v-6h6v6" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
-            <h3>Signature attractions</h3>
-            <p>Rides and moments designed around real Roblox mechanics.</p>
-          </div>
-          <div class="glass feature-card">
-            <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3v18M6 8h9a3 3 0 0 1 0 6H6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <h3>Brilliant dining</h3>
-            <p>In-world restaurants and snacks that fit every land's story.</p>
-          </div>
-        </div>
-
-        <div class="section-heading">
-          <h2>Your e-tickets</h2>
-          <span class="count" id="ticketsCount">0 upcoming</span>
-        </div>
-        <div class="tickets-strip glass" id="ticketsStrip" style="background:transparent;border:none;box-shadow:none;backdrop-filter:none;">
-          <div class="ticket-empty">No upcoming tickets yet — book a day below.</div>
-        </div>
-
-        <div class="glass calendar-card">
-          <div class="calendar-header">
-            <h2>Book your visit</h2>
-            <div class="month-nav">
-              <button class="icon-btn" id="prevMonthBtn" type="button" aria-label="Previous month">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <span class="month-label" id="monthLabel">Month Year</span>
-              <button class="icon-btn" id="nextMonthBtn" type="button" aria-label="Next month">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-            </div>
-          </div>
-          <div class="calendar-legend">
-            <span><span class="legend-dot open"></span>Open</span>
-            <span><span class="legend-dot booked"></span>Your booking</span>
-            <span><span class="legend-dot full"></span>Fully booked</span>
-            <span><span class="legend-dot closed"></span>Not available</span>
-          </div>
-          <div class="calendar-grid" id="calendarGrid"></div>
-        </div>
-
-        <footer class="site-footer">
-          <p><strong>Phantasialand-Roblox</strong> is an independent, fan-made Roblox experience. It is not affiliated with, endorsed by, sponsored by, or in any way officially connected to Phantasialand, Schmidt Löffelhardt GmbH &amp; Co. KG, or any of its subsidiaries or affiliates. All references to "Phantasialand" are used solely to describe the theme and inspiration of this fan project.</p>
-          <p>© <span id="footerYear">2026</span> Phantasialand-Roblox fan project. All rights to original Phantasialand names, marks, and imagery belong to their respective owners.</p>
-        </footer>
+      <div class="legend-bar">
+        <span><span class="legend-swatch open"></span>Open</span>
+        <span><span class="legend-swatch low"></span>Almost full</span>
+        <span><span class="legend-swatch full"></span>Fully booked</span>
+        <span><span class="legend-swatch mine"></span>In your cart</span>
       </div>
+
+      <div class="calendar-grid" id="calendarGrid"></div>
     </section>
 
+    <div class="cart-bar" id="cartBar">
+      <div class="cb-info"><strong id="cartBarCount">0 tickets</strong><span>ready to book</span></div>
+      <button id="cartBarBtn" type="button">Review &amp; book</button>
+    </div>
+
+    <footer class="site-footer">
+      <p><strong>Phantasialand-Roblox</strong> is an independent, fan-made Roblox experience. It is not affiliated with, endorsed by, sponsored by, or in any way officially connected to Phantasialand, Schmidt Löffelhardt GmbH &amp; Co. KG, or any of its subsidiaries or affiliates. All references to "Phantasialand" are used solely to describe the theme and inspiration of this fan project.</p>
+      <p>© <span id="footerYear">2026</span> Phantasialand-Roblox fan project. All rights to original Phantasialand names, marks, and imagery belong to their respective owners.</p>
+    </footer>
   </main>
 
   <!-- ================================================================ -->
-  <!-- MODAL: Step 1 — attendance confirmation                          -->
+  <!-- MODAL: get username (OAuth or manual) for the selected day        -->
   <!-- ================================================================ -->
-  <div class="modal-overlay" id="modalStep1">
-    <div class="glass modal-card">
-      <button class="modal-close-x" type="button" data-close-modal aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  <div class="modal-overlay" id="modalGetUsername">
+    <div class="modal-card">
+      <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <div class="modal-eyebrow">Add to cart</div>
+      <h3>Who is this ticket for? <span id="pickDateLabel"></span></h3>
+      <p class="modal-desc">Sign in with Roblox to verify your username securely, or enter it manually.</p>
+
+      <button class="btn btn-primary" id="robloxOAuthBtn" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4L20 4L17.5 20L6.5 20L4 4Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        <span class="btn-label">Continue with Roblox</span>
       </button>
-      <div class="modal-eyebrow">Step 1 of 3</div>
-      <h3>Before you book <span id="step1Date"></span></h3>
-      <p class="modal-desc">Please confirm both of the following to continue.</p>
 
-      <label class="check-row" id="check1Row">
-        <input type="checkbox" id="check1" />
-        <span class="check-box"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <span class="check-label">I confirm I plan to attend the park on this exact date.</span>
-      </label>
-      <label class="check-row" id="check2Row">
-        <input type="checkbox" id="check2" />
-        <span class="check-box"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <span class="check-label">I've read the visitor guidelines and agree to follow them.</span>
-      </label>
+      <div class="divider-or"><span class="line"></span>OR<span class="line"></span></div>
 
-      <div class="modal-actions" style="margin-top:18px;">
-        <button class="btn btn-ghost" type="button" data-close-modal>Cancel</button>
-        <button class="btn btn-primary" id="step1ContinueBtn" type="button" disabled>Continue</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================================================================ -->
-  <!-- MODAL: Step 2 — choose account                                   -->
-  <!-- ================================================================ -->
-  <div class="modal-overlay" id="modalStep2">
-    <div class="glass modal-card">
-      <button class="modal-close-x" type="button" data-close-modal aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </button>
-      <div class="modal-eyebrow">Step 2 of 3</div>
-      <h3>Who is this ticket for?</h3>
-      <p class="modal-desc">Book with your linked account, or enter another Roblox username.</p>
-
-      <div class="account-choice">
-        <div class="choice-card selected" id="choiceLinked" data-choice="linked">
-          <span class="radio"></span>
-          <span class="choice-text"><strong>Use my linked account</strong><span id="choiceLinkedName">@username</span></span>
-        </div>
-        <div class="choice-card" id="choiceOther" data-choice="other">
-          <span class="radio"></span>
-          <span class="choice-text"><strong>Book for someone else</strong><span>Enter a different Roblox username</span></span>
-        </div>
-      </div>
-
-      <div class="field other-username-field" id="otherUsernameField">
-        <label for="otherUsernameInput">Roblox username</label>
+      <div class="field">
+        <label for="manualUsernameInput">Enter your Roblox username manually</label>
         <div class="field-input-wrap">
           <span class="at">@</span>
-          <input id="otherUsernameInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="their_roblox_name" maxlength="32" />
+          <input id="manualUsernameInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="your_roblox_name" maxlength="32" />
         </div>
-        <div id="otherUsernameHint" class="field-hint"></div>
+        <div id="manualUsernameHint" class="field-hint"></div>
       </div>
-
-      <div class="modal-actions" style="margin-top:16px;">
-        <button class="btn btn-ghost" type="button" data-back-modal="modalStep1">Back</button>
-        <button class="btn btn-primary" id="step2ContinueBtn" type="button">Continue</button>
-      </div>
+      <button class="btn btn-ghost" id="manualAddBtn" type="button">Add to cart with this username</button>
     </div>
   </div>
 
   <!-- ================================================================ -->
-  <!-- MODAL: Step 3 — final confirmation                                -->
+  <!-- MODAL: Cart                                                       -->
   <!-- ================================================================ -->
-  <div class="modal-overlay" id="modalStep3">
-    <div class="glass modal-card">
-      <button class="modal-close-x" type="button" data-close-modal aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </button>
-      <div class="modal-eyebrow">Step 3 of 3</div>
-      <h3>Confirm your booking</h3>
-      <p class="modal-desc">Double-check the details below — this creates your e-ticket.</p>
+  <div class="modal-overlay" id="modalCart">
+    <div class="modal-card wide">
+      <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <div class="modal-eyebrow">Your cart</div>
+      <h3>Review your tickets</h3>
+      <p class="modal-desc">Every ticket is free. You can remove any item before confirming.</p>
+
+      <div class="cart-list" id="cartList"></div>
 
       <div class="summary-box">
-        <div class="summary-row"><span>Visit date</span><span id="summaryDate"></span></div>
-        <div class="summary-row"><span>Guest</span><span id="summaryGuest"></span></div>
-        <div class="summary-row"><span>Ticket type</span><span>Ticket (ages 12+)</span></div>
-        <div class="summary-row"><span>Price</span><span>€29.00</span></div>
+        <div class="summary-row"><span>Tickets</span><span id="cartSummaryCount">0</span></div>
+        <div class="summary-row"><span>Total</span><span>€0.00 (Free)</span></div>
       </div>
 
       <div class="modal-actions">
-        <button class="btn btn-ghost" type="button" data-back-modal="modalStep2">Back</button>
-        <button class="btn btn-primary" id="step3ConfirmBtn" type="button">
+        <button class="btn btn-ghost" type="button" data-close-modal>Keep browsing</button>
+        <button class="btn btn-primary" id="cartConfirmBtn" type="button">
           <span class="spinner" aria-hidden="true"></span>
-          <span class="btn-label">Book this ticket</span>
+          <span class="btn-label">Confirm free order</span>
         </button>
       </div>
     </div>
@@ -267,17 +159,13 @@
   <!-- MODAL: Success                                                    -->
   <!-- ================================================================ -->
   <div class="modal-overlay" id="modalSuccess">
-    <div class="glass modal-card" style="text-align:center;">
-      <button class="modal-close-x" type="button" data-close-modal aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </button>
+    <div class="modal-card" style="text-align:center;">
+      <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <div class="success-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <h3>You're booked!</h3>
-      <p class="modal-desc">Your e-ticket has been saved to your account. You can view it anytime from the homepage.</p>
-      <div class="modal-actions">
-        <button class="btn btn-ghost" type="button" id="viewTicketBtn">View e-ticket</button>
-        <button class="btn btn-primary" type="button" data-close-modal>Done</button>
-      </div>
+      <p class="modal-desc">Your e-tickets are ready. Screenshot them or download as PDF — you'll need the barcode on your visit day.</p>
+      <div id="successTicketList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
+      <button class="btn btn-primary" type="button" data-close-modal>Done</button>
     </div>
   </div>
 
@@ -286,21 +174,55 @@
   <!-- ================================================================ -->
   <div class="modal-overlay" id="modalTicket">
     <div class="modal-card ticket-modal">
-      <button class="modal-close-x" type="button" data-close-modal aria-label="Close" style="z-index:2;">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </button>
+      <button class="modal-close-x" type="button" data-close-modal aria-label="Close" style="z-index:2;"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <div id="ticketMount"></div>
-      <div style="display:flex; gap:10px; padding:18px 30px 26px; background:#f5f7f9;">
+      <div style="display:flex; gap:10px; padding:16px 28px 24px; background:#f5f7f9;">
         <button class="btn btn-ghost btn-sm" type="button" id="downloadPdfBtn" style="flex:1;">Download as PDF</button>
         <button class="btn btn-primary btn-sm" type="button" data-close-modal style="flex:1;">Close</button>
       </div>
     </div>
   </div>
 
-  <div id="toast" class="glass" role="status" aria-live="polite"></div>
+  <!-- ================================================================ -->
+  <!-- MODAL: Entering Panel (daily session check-in)                    -->
+  <!-- ================================================================ -->
+  <div class="modal-overlay" id="modalEnter">
+    <div class="modal-card">
+      <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <div class="modal-eyebrow">Today's entrance</div>
+      <h3>Verify your ticket</h3>
+      <p class="modal-desc">Enter the username you booked with and the barcode printed on your e-ticket.</p>
 
-  <!-- QR code + PDF export libraries -->
+      <div class="field">
+        <label for="enterUsernameInput">Roblox username</label>
+        <div class="field-input-wrap"><span class="at">@</span><input id="enterUsernameInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="your_roblox_name" /></div>
+      </div>
+      <div class="field">
+        <label for="enterBarcodeInput">Ticket barcode</label>
+        <div class="field-input-wrap"><input id="enterBarcodeInput" type="text" autocomplete="off" spellcheck="false" placeholder="PLR-XXXXXXXXXXXXXXXX" /></div>
+      </div>
+
+      <div class="divider-or"><span class="line"></span>OR<span class="line"></span></div>
+      <div class="field">
+        <label for="enterTicketImage">Upload a screenshot of your e-ticket to auto-fill the barcode</label>
+        <input id="enterTicketImage" type="file" accept="image/*" style="font-size:12.5px;" />
+        <div id="enterScanHint" class="field-hint"></div>
+      </div>
+
+      <div id="enterResultBox" style="display:none;"></div>
+
+      <button class="btn btn-primary" id="enterSubmitBtn" type="button" style="margin-top:6px;">
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="btn-label">Verify &amp; unlock entrance</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- QR generation, barcode scanning, and PDF export libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
