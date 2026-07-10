@@ -4,7 +4,11 @@
    CONFIG
    ========================================================================== */
 
-const SHEETDB_API = "https://sheetdb.io/api/v1/sfdz1zcgs1ubr";
+const SHEETS_API =
+  "https://script.google.com/macros/s/AKfycbz7poA9onjIuZQddOOL_8JoneqCMs0NQZZczb69Wtp5BhgeC0pZCvYZGe2QX0vRzAWY/exec";
+// Column order expected in the Google Sheet, matching how doPost() appends
+// `jsonBody.values` as a plain row: [username, linked_at]
+const SHEET_COLUMNS = ["username", "linked_at"];
 const STORAGE_KEY = "rbx_link_username";
 const SOUND_MUTE_KEY = "rbx_link_music_muted";
 
@@ -130,32 +134,53 @@ function showToast(message, type = "info") {
 }
 
 /* ==========================================================================
-   SHEETDB INTEGRATION
+   GOOGLE SHEETS INTEGRATION (via Apps Script Web App)
+   The Apps Script doGet() has no server-side filtering — it always returns
+   every row as JSON. So we fetch everything once and filter client-side.
+   doPost() expects { values: [...] } and appends it as a raw row, in the
+   exact column order defined in SHEET_COLUMNS above.
+
+   Important: the POST is sent with `Content-Type: text/plain` on purpose.
+   Apps Script Web Apps don't answer CORS preflight (OPTIONS) requests, so
+   a JSON content-type would trigger a preflight and silently fail. Sending
+   as text/plain skips the preflight while the body is still valid JSON,
+   which doPost() parses fine via JSON.parse(e.postData.contents).
    ========================================================================== */
 
-async function findAccountByUsername(username) {
-  const url = `${SHEETDB_API}/search?username=${encodeURIComponent(username)}`;
-  const res = await fetch(url, { method: "GET" });
+async function fetchAllAccounts() {
+  const res = await fetch(SHEETS_API, { method: "GET" });
   if (!res.ok) throw new Error("Suche fehlgeschlagen");
   const rows = await res.json();
-  return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+  return Array.isArray(rows) ? rows : [];
+}
+
+async function findAccountByUsername(username) {
+  const rows = await fetchAllAccounts();
+  const target = username.trim().toLowerCase();
+  return (
+    rows.find(
+      (row) =>
+        String(row.username ?? "")
+          .trim()
+          .toLowerCase() === target
+    ) || null
+  );
 }
 
 async function createAccount(username) {
-  const res = await fetch(SHEETDB_API, {
+  const values = SHEET_COLUMNS.map((col) =>
+    col === "username" ? username : new Date().toISOString()
+  );
+
+  const res = await fetch(SHEETS_API, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      data: [
-        {
-          username: username,
-          linked_at: new Date().toISOString(),
-        },
-      ],
-    }),
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ values }),
   });
   if (!res.ok) throw new Error("Konnte Account nicht erstellen");
-  return res.json();
+  const data = await res.json();
+  if (data.status === "error") throw new Error(data.message || "Fehler beim Speichern");
+  return data;
 }
 
 /* ==========================================================================
@@ -289,7 +314,7 @@ authForm.addEventListener("submit", async (e) => {
   } catch (err) {
     console.error(err);
     setHint("Etwas ist schiefgelaufen. Bitte versuch es erneut.", "error");
-    showToast("Verbindung zu SheetDB fehlgeschlagen.", "error");
+    showToast("Verbindung zu Google Sheets fehlgeschlagen.", "error");
   } finally {
     setButtonLoading(submitBtn, false);
   }
