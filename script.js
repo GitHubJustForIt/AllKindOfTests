@@ -5,7 +5,7 @@
    ========================================================================== */
 
 const SHEETS_API =
-  "https://script.google.com/macros/s/AKfycbwiEYyFpa1WgLIVSScpfnS_jJmQWWtVr0ZffK3ECx7Sg6UgTbE--LafZNIIZXqcSkM/exec";
+  "https://script.google.com/macros/s/AKfycbz_UDnK1x83zLZ7DnMWfO8J-wSHz_fV7xu2bW67Qp2mp8YyI_0S7W8c35PSbwEppJ4W/exec";
 
 const STORAGE_KEY = "plr_username";
 const SOUND_MUTE_KEY = "plr_music_muted";
