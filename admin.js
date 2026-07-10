@@ -38,6 +38,83 @@ function formatDateLong(dateStr) {
 }
 
 /* ==========================================================================
+   STYLED CONFIRM / PROMPT DIALOGS
+   Replace window.confirm() / window.prompt() everywhere below — those
+   native browser dialogs can't be styled and clash with the rest of the
+   site. These return a Promise, same call shape, so the rest of the code
+   just uses `await`.
+   ========================================================================== */
+
+function confirmDialog(title, message, { okLabel = "Confirm", danger = true } = {}) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById("modalConfirm");
+    document.getElementById("confirmTitle").textContent = title;
+    document.getElementById("confirmMessage").textContent = message;
+    const okBtn = document.getElementById("confirmOkBtn");
+    const cancelBtn = document.getElementById("confirmCancelBtn");
+    okBtn.textContent = okLabel;
+    okBtn.className = danger ? "btn btn-danger" : "btn btn-primary";
+
+    const cleanup = (result) => {
+      overlay.classList.remove("show");
+      okBtn.removeEventListener("click", onOk);
+      cancelBtn.removeEventListener("click", onCancel);
+      overlay.removeEventListener("click", onOverlay);
+      resolve(result);
+    };
+    const onOk = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+    const onOverlay = (e) => { if (e.target === overlay) cleanup(false); };
+
+    okBtn.addEventListener("click", onOk);
+    cancelBtn.addEventListener("click", onCancel);
+    overlay.addEventListener("click", onOverlay);
+    overlay.classList.add("show");
+  });
+}
+
+function promptDialog(title, defaultValue = "") {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById("modalPrompt");
+    document.getElementById("promptTitle").textContent = title;
+    const input = document.getElementById("promptInput");
+    const hint = document.getElementById("promptHint");
+    input.value = defaultValue;
+    hint.textContent = "";
+    const okBtn = document.getElementById("promptOkBtn");
+    const cancelBtn = document.getElementById("promptCancelBtn");
+
+    const cleanup = (result) => {
+      overlay.classList.remove("show");
+      okBtn.removeEventListener("click", onOk);
+      cancelBtn.removeEventListener("click", onCancel);
+      overlay.removeEventListener("click", onOverlay);
+      input.removeEventListener("keydown", onKeydown);
+      resolve(result);
+    };
+    const onOk = () => {
+      const val = input.value.trim();
+      if (!val || Number(val) < 1) {
+        hint.textContent = "Enter a valid number.";
+        hint.className = "field-hint error";
+        return;
+      }
+      cleanup(val);
+    };
+    const onCancel = () => cleanup(null);
+    const onOverlay = (e) => { if (e.target === overlay) cleanup(null); };
+    const onKeydown = (e) => { if (e.key === "Enter") onOk(); };
+
+    okBtn.addEventListener("click", onOk);
+    cancelBtn.addEventListener("click", onCancel);
+    overlay.addEventListener("click", onOverlay);
+    input.addEventListener("keydown", onKeydown);
+    overlay.classList.add("show");
+    setTimeout(() => input.focus(), 50);
+  });
+}
+
+/* ==========================================================================
    PIN GATE
    ========================================================================== */
 
@@ -72,16 +149,19 @@ if (sessionStorage.getItem(ADMIN_SESSION_KEY) === "1") {
 
 let contingentsCache = [];
 let sessionsCache = [];
+let ticketsCache = [];
 
 async function loadAll() {
   try {
-    const [contingents, sessions, settings] = await Promise.all([
+    const [contingents, sessions, settings, tickets] = await Promise.all([
       apiGet("Contingents"),
       apiGet("Sessions"),
       apiGet("Settings"),
+      apiGet("Tickets"),
     ]);
     contingentsCache = contingents.sort((a, b) => String(a.date).localeCompare(String(b.date)));
     sessionsCache = sessions;
+    ticketsCache = tickets;
     renderDays();
 
     const banner = settings.find((s) => s.key === "bannerImageUrl");
@@ -94,6 +174,12 @@ async function loadAll() {
 
 function sessionForDate(dateStr) {
   return sessionsCache.find((s) => String(s.date) === dateStr);
+}
+
+function ticketFor(dateStr, username) {
+  return ticketsCache.find(
+    (t) => String(t.date) === dateStr && String(t.username).toLowerCase() === username.toLowerCase()
+  );
 }
 
 function renderDays() {
@@ -127,12 +213,20 @@ function renderDays() {
         </div>
       </div>
       <div class="booking-list" data-panel="bookings">
-        ${usernames.length === 0 ? '<div class="empty-note">No bookings yet.</div>' : usernames.map((u) => `
-          <div class="booking-chip">
-            <span>@${u}</span>
-            <button data-remove-username="${u}">Remove</button>
-          </div>
-        `).join("")}
+        ${usernames.length === 0 ? '<div class="empty-note">No bookings yet.</div>' : usernames.map((u) => {
+          const t = ticketFor(day.date, u);
+          const checkedIn = t && t.checked_in_at;
+          return `
+            <div class="booking-chip">
+              <div class="bc-main">
+                <span>@${u}</span>
+                ${t ? `<span class="bc-barcode">${t.barcode}</span>` : `<span class="bc-barcode">no ticket row found</span>`}
+              </div>
+              <span class="bc-status ${checkedIn ? "in" : "out"}">${checkedIn ? "Checked in" : "Not entered"}</span>
+              <button data-remove-username="${u}" class="link-btn" style="color:var(--danger);">Remove</button>
+            </div>
+          `;
+        }).join("")}
       </div>
       <div class="booking-list" data-panel="session">
         <div class="session-row">
@@ -151,10 +245,9 @@ function renderDays() {
     `;
 
     row.querySelector('[data-action="capacity"]').addEventListener("click", async () => {
-      const next = prompt(`New capacity for ${day.date}:`, day.capacity);
+      const next = await promptDialog(`New capacity for ${formatDateLong(day.date)}`, day.capacity);
       if (next === null) return;
       const capacity = Number(next);
-      if (!capacity || capacity < 1) { showToast("Enter a valid capacity.", "error"); return; }
       try {
         await apiPost({ action: "SET_CONTINGENT", date: day.date, capacity });
         showToast("Capacity updated.");
@@ -172,7 +265,8 @@ function renderDays() {
     row.querySelectorAll("[data-remove-username]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const username = btn.getAttribute("data-remove-username");
-        if (!confirm(`Remove @${username}'s booking for ${day.date}?`)) return;
+        const ok = await confirmDialog("Remove booking?", `Remove @${username}'s booking for ${formatDateLong(day.date)}? This also deletes their ticket row.`);
+        if (!ok) return;
         try {
           await apiPost({ action: "REMOVE_BOOKING", date: day.date, username });
           showToast("Booking removed.");
@@ -182,10 +276,14 @@ function renderDays() {
     });
 
     row.querySelector('[data-action="close"]').addEventListener("click", async () => {
-      if (!confirm(`Close ${day.date}? This removes it from the calendar entirely.`)) return;
+      const ok = await confirmDialog(
+        "Close this day?",
+        `This removes ${formatDateLong(day.date)} from the calendar, deletes all ${usernames.length} ticket(s) booked for it, and closes its entrance session.`
+      );
+      if (!ok) return;
       try {
-        await apiPost({ action: "DELETE_CONTINGENT", date: day.date });
-        showToast("Day closed.");
+        const result = await apiPost({ action: "DELETE_CONTINGENT", date: day.date });
+        showToast(result.message || "Day closed.");
         loadAll();
       } catch (err) { showToast(err.message, "error"); }
     });
@@ -203,6 +301,8 @@ function renderDays() {
     const closeSessionBtn = row.querySelector('[data-action="close-session"]');
     if (closeSessionBtn) {
       closeSessionBtn.addEventListener("click", async () => {
+        const ok = await confirmDialog("Close today's entrance session?", "Guests won't be able to check in for this date until you open it again.", { okLabel: "Close session" });
+        if (!ok) return;
         try {
           await apiPost({ action: "CLOSE_SESSION", date: day.date });
           showToast("Session closed.");
