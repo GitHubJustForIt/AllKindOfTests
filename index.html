@@ -22,9 +22,14 @@
       <span class="brand-tag">FAN EXPERIENCE</span>
     </div>
 
-    <button class="pill-btn icon-pill" id="infoBtn" type="button" title="About this project" aria-label="About this project">
-      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5.5M12 8v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </button>
+    <div class="topbar-right">
+      <button class="pill-btn icon-pill" id="tosBtn" type="button" title="Terms of Service" aria-label="Terms of Service">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M7 3.5h7l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 12h5M9.5 15.5h5M9.5 8.5h2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </button>
+      <button class="pill-btn icon-pill" id="infoBtn" type="button" title="About this project" aria-label="About this project">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5.5M12 8v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
 
     <a class="admin-link" href="admin.html">ADMIN</a>
   </div>
@@ -36,14 +41,11 @@
       <p class="lede">Step into richly themed worlds, ride reimagined attractions, and enjoy <strong>brilliant in-world dining</strong> — all free, all inside Roblox. Pick an open day below and reserve your spot.</p>
       <span class="free-badge"><span class="dot"></span> Every ticket is free — limited daily spots</span>
 
-      <!-- Site-wide banner image, mirrors the banner used at the top of the e-ticket -->
+      <!-- Site-wide banner: cross-fades smoothly between as many images
+           as are listed in HERO_IMAGES at the top of script.js. -->
       <div class="hero-image">
-        <img
-          id="heroBannerImg"
-          src="https://cdn.discordapp.com/attachments/1510354348217991350/1525095438301134929/Screenshot_299.png?ex=6a52234f&is=6a50d1cf&hm=66262401b771276167a65d881470132c99b76771c2a70d91e6bb0c0dfc059ccf&"
-          alt="Phantasialand-Roblox"
-          onerror="this.closest('.hero-image').style.display='none';"
-        />
+        <div id="heroCarousel" class="hero-carousel"></div>
+        <div id="heroDots" class="hero-dots"></div>
       </div>
     </section>
 
@@ -76,7 +78,7 @@
 
     <section class="calendar-section">
       <h2 class="section-title">Choose Your Visit Date</h2>
-      <p class="section-sub">All tickets are free. Up to two tickets per day, per order — one per Roblox username, per day.</p>
+      <p class="section-sub">All tickets are free. Up to two tickets per day, per order — one per Roblox username.</p>
 
       <div class="month-nav">
         <button class="nav-arrow" id="prevMonthBtn" type="button" aria-label="Previous month">
@@ -105,7 +107,7 @@
 
     <footer class="site-footer">
       <p><strong>Phantasialand-Roblox</strong> is an independent, fan-made Roblox experience. It is not affiliated with, endorsed by, sponsored by, or in any way officially connected to Phantasialand, Schmidt Löffelhardt GmbH &amp; Co. KG, or any of its subsidiaries or affiliates. All references to "Phantasialand" are used solely to describe the theme and inspiration of this fan project.</p>
-      <p>© <span id="footerYear">2026</span> Phantasialand-Roblox fan project. All rights to original Phantasialand names, marks, and imagery belong to their respective owners.</p>
+      <p>© <span id="footerYear">2026</span> Phantasialand-Roblox fan project. All rights to original Phantasialand names, marks, and imagery belong to their respective owners. <button class="link-btn" id="tosFooterBtn" type="button">Terms of Service</button></p>
     </footer>
   </main>
 
@@ -173,7 +175,7 @@
       <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <div class="success-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <h3>You're booked!</h3>
-      <p class="modal-desc">Your e-tickets are ready. Screenshot them, save the barcode as text, or download as PDF — you'll need the barcode on your visit day.</p>
+      <p class="modal-desc">Open a ticket below and download its barcode as a text file — you'll need it on your visit day.</p>
       <div id="successTicketList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
       <button class="btn btn-primary" type="button" data-close-modal>Done</button>
     </div>
@@ -189,14 +191,12 @@
         <div id="ticketMount"></div>
       </div>
       <div class="ticket-modal-actions">
-        <p class="tma-note">Kopiere den Barcode oder lade ihn als E-Ticket-Textdatei herunter. Beides kannst du bei der Daily Session zur Verifizierung hochladen oder einfügen.</p>
+        <p class="tma-note">Lade den Barcode als E-Ticket-Textdatei herunter. Diese Datei kannst du bei der Daily Session hochladen — Username und Barcode werden dann automatisch ausgefüllt.</p>
         <div class="tma-row">
-          <button class="btn btn-ghost btn-sm" type="button" id="copyBarcodeBtn">Barcode kopieren</button>
-          <button class="btn btn-ghost btn-sm" type="button" id="downloadBarcodeTxtBtn">Als Text herunterladen</button>
+          <button class="btn btn-primary btn-sm" type="button" id="downloadBarcodeTxtBtn">E-Ticket als Text herunterladen</button>
         </div>
         <div class="tma-row">
-          <button class="btn btn-ghost btn-sm" type="button" id="downloadPdfBtn">Download as PDF</button>
-          <button class="btn btn-primary btn-sm" type="button" data-close-modal>Close</button>
+          <button class="btn btn-ghost btn-sm" type="button" data-close-modal>Close</button>
         </div>
       </div>
     </div>
@@ -210,7 +210,15 @@
       <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <div class="modal-eyebrow">Today's entrance</div>
       <h3>Verify your ticket</h3>
-      <p class="modal-desc">Enter the username you booked with and the barcode printed on your e-ticket.</p>
+      <p class="modal-desc">Upload your e-ticket text file to auto-fill everything, or enter your details manually.</p>
+
+      <div class="field">
+        <label for="enterTicketText">Upload your e-ticket (.txt)</label>
+        <input id="enterTicketText" type="file" accept=".txt,text/plain" style="font-size:12.5px;" />
+        <div id="enterTextHint" class="field-hint"></div>
+      </div>
+
+      <div class="divider-or"><span class="line"></span>OR ENTER MANUALLY<span class="line"></span></div>
 
       <div class="field">
         <label for="enterUsernameInput">Roblox username</label>
@@ -219,19 +227,6 @@
       <div class="field">
         <label for="enterBarcodeInput">Ticket barcode</label>
         <div class="field-input-wrap"><input id="enterBarcodeInput" type="text" autocomplete="off" spellcheck="false" placeholder="PLR-XXXXXXXXXXXXXXXX" /></div>
-      </div>
-
-      <div class="divider-or"><span class="line"></span>OR<span class="line"></span></div>
-      <div class="field">
-        <label for="enterTicketImage">Upload a screenshot of your e-ticket to auto-fill the barcode</label>
-        <input id="enterTicketImage" type="file" accept="image/*" style="font-size:12.5px;" />
-        <div id="enterScanHint" class="field-hint"></div>
-      </div>
-
-      <div class="field">
-        <label for="enterTicketText">Or upload the downloaded barcode text file (.txt)</label>
-        <input id="enterTicketText" type="file" accept=".txt,text/plain" style="font-size:12.5px;" />
-        <div id="enterTextHint" class="field-hint"></div>
       </div>
 
       <div id="enterResultBox" style="display:none;"></div>
@@ -243,13 +238,38 @@
     </div>
   </div>
 
+  <!-- ================================================================ -->
+  <!-- MODAL: Terms of Service                                           -->
+  <!-- ================================================================ -->
+  <div class="modal-overlay" id="modalTerms">
+    <div class="modal-card wide">
+      <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <div class="modal-eyebrow">Legal</div>
+      <h3>Terms of Service &amp; Nutzungsbedingungen</h3>
+      <div class="tos-body">
+        <h4>1. About this project</h4>
+        <p>Phantasialand-Roblox ist ein unabhängiges, nicht-kommerzielles Fan-Projekt innerhalb von Roblox. Es besteht keinerlei Verbindung zu, Beauftragung durch oder Zusammenarbeit mit Phantasialand, Schmidt Löffelhardt GmbH &amp; Co. KG oder verbundenen Unternehmen.</p>
+
+        <h4>2. Free tickets, one per username</h4>
+        <p>Alle Tickets sind kostenlos. Pro Tag können maximal zwei Tickets pro Bestellung gebucht werden. Jeder Roblox-Nutzername kann pro Kalendertag jedoch nur <strong>ein einziges</strong> Ticket besitzen — ein erneuter Buchungsversuch mit demselben Namen für denselben Tag wird automatisch abgelehnt.</p>
+
+        <h4>3. Roblox-Anmeldung (OAuth)</h4>
+        <p>Wenn du dich über „Continue with Roblox" anmeldest, fragt diese Seite über die offizielle Roblox-OAuth-Schnittstelle ausschließlich deinen öffentlichen Roblox-Nutzernamen ab. Es werden keine Passwörter, Zahlungsdaten oder sonstigen privaten Informationen abgefragt oder gespeichert. Alternativ kannst du deinen Nutzernamen auch manuell eingeben, ohne dich anzumelden.</p>
+
+        <h4>4. Dein E-Ticket</h4>
+        <p>Nach der Buchung erhältst du ein E-Ticket mit einem einmaligen Barcode. Dieses kannst du ausschließlich als Textdatei (.txt) herunterladen. Bewahre diese Datei privat auf — sie dient als Nachweis bei der täglichen Einlass-Session und ist nicht übertragbar.</p>
+
+        <h4>5. Nutzung &amp; Haftungsausschluss</h4>
+        <p>Die Nutzung dieser Seite erfolgt auf eigene Verantwortung. Es besteht kein Anspruch auf Verfügbarkeit, Fehlerfreiheit oder dauerhaften Betrieb. Missbrauch (z. B. Mehrfachbuchungen unter falschen Angaben) kann zum Ausschluss von der Buchung führen.</p>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- QR generation, barcode scanning, and PDF export libraries -->
+  <!-- QR rendering (on-screen ticket) + QR-image scanning (optional check-in aid) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script src="script.js"></script>
 </body>
