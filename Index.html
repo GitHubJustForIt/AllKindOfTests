@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Verknüpfe deinen Roblox Account</title>
+<meta name="description" content="Verknüpfe deinen Roblox Account und leg los." />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Ambient liquid glass background -->
+  <div class="liquid-bg" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <main class="app">
+
+    <!-- ============================================================ -->
+    <!-- SCREEN 1 — Roblox Account verknüpfen                          -->
+    <!-- ============================================================ -->
+    <section id="screen-auth" class="screen active">
+      <div class="glass auth-card">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 4L20 4L17.5 20L6.5 20L4 4Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M8.5 8.5H15.5V15.5H8.5V8.5Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1>Roblox Account verknüpfen</h1>
+        <p class="sub">Gib deinen Roblox-Benutzernamen ein, um fortzufahren. Hast du schon einen verknüpften Account, geht's direkt weiter.</p>
+
+        <form id="authForm" novalidate>
+          <div class="field">
+            <label for="usernameInput">Roblox Benutzername</label>
+            <div class="field-input-wrap">
+              <span class="at">@</span>
+              <input
+                id="usernameInput"
+                name="username"
+                type="text"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="dein_roblox_name"
+                maxlength="32"
+                required
+              />
+            </div>
+            <div id="fieldHint" class="field-hint" aria-live="polite"></div>
+          </div>
+
+          <button id="submitBtn" type="submit" class="btn btn-primary">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="btn-label">Verknüpfen</span>
+          </button>
+        </form>
+
+        <p class="legal-note">Wir speichern nur deinen Roblox-Benutzernamen, um dein Konto wiederzuerkennen. Kein Passwort, kein Zugriff auf dein Roblox-Konto.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN 2 — Süße Introduction (nur für neue Accounts)          -->
+    <!-- ============================================================ -->
+    <section id="screen-intro" class="screen">
+      <div class="glass intro-card">
+        <span class="intro-emoji">🎉</span>
+        <h2>Willkommen, <span id="introUsername" class="username-highlight">Spieler</span>!</h2>
+        <p>Schön, dass du da bist. Dein Roblox-Account ist jetzt verknüpft — hier ein kurzer Überblick, bevor es losgeht.</p>
+
+        <div class="intro-steps">
+          <div class="intro-step">
+            <span class="dot">1</span>
+            <span>Dein Account wurde sicher gespeichert und ist ab jetzt wiedererkennbar.</span>
+          </div>
+          <div class="intro-step">
+            <span class="dot">2</span>
+            <span>Auf der Startseite entsteht gerade etwas Neues — du bekommst es als Erstes mit.</span>
+          </div>
+          <div class="intro-step">
+            <span class="dot">3</span>
+            <span>Du musst nichts weiter tun. Einfach zurückkommen, wenn's so weit ist.</span>
+          </div>
+        </div>
+
+        <button id="introContinueBtn" type="button" class="btn btn-primary">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-label">Los geht's</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN 3 — Homepage                                           -->
+    <!-- ============================================================ -->
+    <section id="screen-home" class="screen">
+      <div class="home-wrap">
+        <div class="topbar glass">
+          <div class="topbar-left">
+            <span class="brand-dot" aria-hidden="true"></span>
+            <span>Roblox Link</span>
+          </div>
+          <div class="topbar-right">
+            <span class="chip">
+              <span class="avatar" id="homeAvatarInitial">R</span>
+              <span id="homeUsername">username</span>
+            </span>
+            <button id="muteBtn" class="icon-btn mute-toggle" type="button" title="Musik stumm/laut" aria-label="Musik stumm oder laut schalten">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 9v6h4l5 4V5L8 9H4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                <path class="wave" d="M17 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <button id="logoutBtn" class="icon-btn" type="button" title="Account trennen" aria-label="Account trennen">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="glass hero-card">
+          <span class="badge"><span class="pulse"></span> In Entwicklung</span>
+          <h1>Coming&nbsp;Soon</h1>
+          <p class="tag">Wir bauen gerade etwas Neues für dich. Dein Account ist bereits verknüpft und startklar — sobald es losgeht, bist du live dabei.</p>
+          <div class="progress-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast" class="glass" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
