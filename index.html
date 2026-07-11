@@ -23,8 +23,9 @@
     </div>
 
     <div class="topbar-right">
-      <button class="pill-btn icon-pill" id="tosBtn" type="button" title="Terms of Service" aria-label="Terms of Service">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M7 3.5h7l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 12h5M9.5 15.5h5M9.5 8.5h2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <button class="pill-btn" id="tosBtn" type="button" title="Terms of Service" aria-label="Terms of Service">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M7 3.5h7l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 12h5M9.5 15.5h5M9.5 8.5h2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        TERMS OF SERVICE
       </button>
       <button class="pill-btn icon-pill" id="infoBtn" type="button" title="About this project" aria-label="About this project">
         <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5.5M12 8v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -107,7 +108,8 @@
 
     <footer class="site-footer">
       <p><strong>Phantasialand-Roblox</strong> is an independent, fan-made Roblox experience. It is not affiliated with, endorsed by, sponsored by, or in any way officially connected to Phantasialand, Schmidt Löffelhardt GmbH &amp; Co. KG, or any of its subsidiaries or affiliates. All references to "Phantasialand" are used solely to describe the theme and inspiration of this fan project.</p>
-      <p>© <span id="footerYear">2026</span> Phantasialand-Roblox fan project. All rights to original Phantasialand names, marks, and imagery belong to their respective owners. <button class="link-btn" id="tosFooterBtn" type="button">Terms of Service</button></p>
+      <p>© <span id="footerYear">2026</span> Phantasialand-Roblox fan project. All rights to original Phantasialand names, marks, and imagery belong to their respective owners.</p>
+      <p><button class="link-btn" id="tosFooterBtn" type="button">Terms of Service</button></p>
     </footer>
   </main>
 
@@ -170,23 +172,23 @@
   <!-- ================================================================ -->
   <!-- MODAL: Success                                                    -->
   <!-- ================================================================ -->
-  <div class="modal-overlay" id="modalSuccess">
+  <div class="modal-overlay" id="modalSuccess" data-protected="true">
     <div class="modal-card" style="text-align:center;">
-      <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button class="modal-close-x" type="button" id="successCloseXBtn" aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <div class="success-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <h3>You're booked!</h3>
-      <p class="modal-desc">Open a ticket below and download its barcode as a text file — you'll need it on your visit day.</p>
-      <div id="successTicketList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
-      <button class="btn btn-primary" type="button" data-close-modal>Done</button>
+      <p class="modal-desc">Tap a ticket below to open it and download its barcode as a text file — you'll need it on your visit day.</p>
+      <div id="successTicketList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;"></div>
+      <button class="btn btn-primary" type="button" id="successCloseBtn">Close</button>
     </div>
   </div>
 
   <!-- ================================================================ -->
   <!-- MODAL: Ticket viewer (fullscreen)                                 -->
   <!-- ================================================================ -->
-  <div class="modal-overlay" id="modalTicket">
+  <div class="modal-overlay" id="modalTicket" data-protected="true">
     <div class="modal-card ticket-modal">
-      <button class="modal-close-x" type="button" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button class="modal-close-x" type="button" id="ticketCloseXBtn" aria-label="Close"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <div class="ticket-modal-scroll">
         <div id="ticketMount"></div>
       </div>
@@ -196,8 +198,24 @@
           <button class="btn btn-primary btn-sm" type="button" id="downloadBarcodeTxtBtn">Download e-ticket as text</button>
         </div>
         <div class="tma-row">
-          <button class="btn btn-ghost btn-sm" type="button" data-close-modal>Close</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="ticketCloseBtn">Back to your booking confirmation</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- MODAL: styled confirm dialog (used before permanently closing the -->
+  <!-- booking-confirmation popup — matches the admin panel's dialog)    -->
+  <!-- ================================================================ -->
+  <div class="modal-overlay" id="modalConfirmClose" data-protected="true">
+    <div class="modal-card" style="max-width:380px;">
+      <div class="modal-eyebrow">Please confirm</div>
+      <h3>Close this window?</h3>
+      <p class="modal-desc">You won't be able to reopen your e-ticket(s) here again after this. Make sure you've downloaded every barcode you need first.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" id="confirmCloseCancelBtn">Cancel</button>
+        <button class="btn btn-danger" type="button" id="confirmCloseOkBtn">Yes, close</button>
       </div>
     </div>
   </div>
