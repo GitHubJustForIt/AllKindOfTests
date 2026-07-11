@@ -5,7 +5,7 @@
    ========================================================================== */
 
 const SHEETS_API =
-  "https://script.google.com/macros/s/AKfycbyspbm6lrm8uy9EYulM4tbo-Y14jfN4RPcqbyTRBmz4WapkFA1RGy16bjcMFf0NVPGu/exec";
+  "https://script.google.com/macros/s/AKfycbxZ0DJ07Zdh2B1mC5K2a7jFxcttaTva8_Lwkiril-7rz0lXZpCusSDwFnlamSP_mVbC/exec";
 
 // Public identifier — safe to ship in client code. The matching Client
 // Secret lives ONLY in Code.gs on the server.
@@ -83,15 +83,50 @@ function showToast(message, type = "info") {
    ========================================================================== */
 
 function showModal(id) { document.getElementById(id).classList.add("show"); }
+function hideModal(id) { document.getElementById(id).classList.remove("show"); }
 function hideAllModals() { document.querySelectorAll(".modal-overlay").forEach((m) => m.classList.remove("show")); }
 document.querySelectorAll("[data-close-modal]").forEach((btn) => btn.addEventListener("click", hideAllModals));
 document.querySelectorAll(".modal-overlay").forEach((overlay) => {
+  // Modals marked data-protected (the booking-confirmation popup and the
+  // ticket viewer) can't be dismissed by clicking the backdrop — closing
+  // them loses access to the e-ticket, so they can only be closed through
+  // their explicit, confirmed buttons below.
+  if (overlay.dataset.protected === "true") return;
   overlay.addEventListener("click", (e) => { if (e.target === overlay) hideAllModals(); });
 });
 
 function setButtonLoading(btn, loading) {
   btn.classList.toggle("loading", loading);
   btn.disabled = loading;
+}
+
+/* ==========================================================================
+   STYLED CONFIRM DIALOG (mirrors the one in admin.js)
+   ========================================================================== */
+
+function confirmDialog(title, message, { okLabel = "Yes, close", cancelLabel = "Cancel" } = {}) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById("modalConfirmClose");
+    overlay.querySelector("h3").textContent = title;
+    overlay.querySelector(".modal-desc").textContent = message;
+    const okBtn = document.getElementById("confirmCloseOkBtn");
+    const cancelBtn = document.getElementById("confirmCloseCancelBtn");
+    okBtn.textContent = okLabel;
+    cancelBtn.textContent = cancelLabel;
+
+    const cleanup = (result) => {
+      overlay.classList.remove("show");
+      okBtn.removeEventListener("click", onOk);
+      cancelBtn.removeEventListener("click", onCancel);
+      resolve(result);
+    };
+    const onOk = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+
+    okBtn.addEventListener("click", onOk);
+    cancelBtn.addEventListener("click", onCancel);
+    overlay.classList.add("show");
+  });
 }
 
 /* ==========================================================================
@@ -515,14 +550,30 @@ function showSuccessModal(tickets) {
   tickets.forEach((t) => {
     const row = document.createElement("button");
     row.type = "button";
-    row.className = "btn btn-ghost btn-sm";
-    row.style.justifyContent = "space-between";
-    row.textContent = `View ticket — ${formatDateLong(t.date)} (@${t.username})`;
-    row.addEventListener("click", () => { hideAllModals(); openTicketModal(t); });
+    row.className = "ticket-reveal-btn";
+    row.innerHTML = `
+      <span class="trb-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a1.5 1.5 0 0 0 0 3v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a1.5 1.5 0 0 0 0-3V8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
+      <span class="trb-text">
+        <strong>${formatDateLong(t.date)}</strong>
+        <span>@${t.username} — tap to open your e-ticket</span>
+      </span>
+      <span class="trb-arrow">→</span>
+    `;
+    row.addEventListener("click", () => openTicketModal(t));
     list.appendChild(row);
   });
   showModal("modalSuccess");
 }
+
+async function attemptCloseBookingConfirmation() {
+  const ok = await confirmDialog(
+    "Close this window?",
+    "You won't be able to reopen your e-ticket(s) here again after this. Make sure you've downloaded every barcode you need first."
+  );
+  if (ok) hideAllModals();
+}
+document.getElementById("successCloseBtn").addEventListener("click", attemptCloseBookingConfirmation);
+document.getElementById("successCloseXBtn").addEventListener("click", attemptCloseBookingConfirmation);
 
 /* ==========================================================================
    TICKET GENERATION (display only — barcode itself comes from the server)
@@ -591,8 +642,16 @@ function openTicketModal(ticket) {
   document.getElementById("ticketMount").innerHTML = renderTicketHTML(ticket);
   drawTicketQrCodes(ticket);
   document.getElementById("downloadBarcodeTxtBtn").onclick = () => downloadBarcodeAsTxt(ticket);
+  hideModal("modalSuccess");
   showModal("modalTicket");
 }
+
+function closeTicketModal() {
+  hideModal("modalTicket");
+  showModal("modalSuccess");
+}
+document.getElementById("ticketCloseBtn").addEventListener("click", closeTicketModal);
+document.getElementById("ticketCloseXBtn").addEventListener("click", closeTicketModal);
 
 // The e-ticket "download" is a small plain-text file — username + barcode
 // + date — so the Entering Panel can auto-fill BOTH fields from one
