@@ -78,8 +78,13 @@
     </section>
 
     <section class="calendar-section">
-      <h2 class="section-title">Choose Your Visit Date</h2>
-      <p class="section-sub">All tickets are free. Up to two tickets per day, per order — one per Roblox username.</p>
+      <div class="step-header">
+        <span class="step-badge">1</span>
+        <div class="step-header-text">
+          <h2 class="section-title">Choose your visit date</h2>
+          <p class="section-sub">All tickets are free. Up to two tickets per day — one per Roblox username.</p>
+        </div>
+      </div>
 
       <div class="month-nav">
         <button class="nav-arrow" id="prevMonthBtn" type="button" aria-label="Previous month">
@@ -99,6 +104,39 @@
       </div>
 
       <div class="calendar-grid" id="calendarGrid"></div>
+    </section>
+
+    <section class="calendar-section" id="ticketStepSection" style="display:none;">
+      <div class="step-header">
+        <span class="step-badge">2</span>
+        <div class="step-header-text">
+          <h2 class="section-title">Choose your tickets</h2>
+          <p class="section-sub" id="stepTwoDateLabel">Valid on —</p>
+        </div>
+      </div>
+
+      <div class="ticket-stepper-row">
+        <div class="tsr-icon">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a1.5 1.5 0 0 0 0 3v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a1.5 1.5 0 0 0 0-3V8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="tsr-info">
+          <strong>Free Roblox Ticket</strong>
+          <span>One ticket per Roblox username — max. 2 per day</span>
+        </div>
+        <div class="tsr-price">Free</div>
+        <div class="tsr-stepper">
+          <button type="button" class="stepper-btn" id="stepMinusBtn" aria-label="Remove a ticket">−</button>
+          <span id="stepCount">0</span>
+          <button type="button" class="stepper-btn" id="stepPlusBtn" aria-label="Add a ticket">+</button>
+        </div>
+      </div>
+
+      <div id="stepTicketChips" class="ticket-chip-list"></div>
+
+      <div class="step-total-bar">
+        <div class="stb-info"><strong id="stepTotalCount">0 tickets</strong><span>selected for this day</span></div>
+        <button class="btn btn-primary btn-sm" id="stepReviewBtn" type="button">Review &amp; book</button>
+      </div>
     </section>
 
     <div class="cart-bar" id="cartBar">
