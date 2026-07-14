@@ -34,6 +34,9 @@ const MAX_PER_DAY_IN_CART = 2;
 // Add as many banner images as you like — the homepage banner will
 // cross-fade smoothly between them. A single entry just shows a static
 // banner with no dots/animation.
+// 👉 Replace these with your OWN image links (imgur, Discord CDN, your
+//    own hosting, etc). Do not use images that belong to the real
+//    Phantasialand / Schmidt Löffelhardt GmbH & Co. KG.
 const HERO_IMAGES = [
   "https://cdn.discordapp.com/attachments/1510354348217991350/1525095438301134929/Screenshot_299.png?ex=6a52234f&is=6a50d1cf&hm=66262401b771276167a65d881470132c99b76771c2a70d91e6bb0c0dfc059ccf&",
   // "https://example.com/your-second-banner.png",
@@ -387,6 +390,7 @@ function updateCartUI() {
       persistCart();
       updateCartUI();
       renderCalendar();
+      if (state.pendingDate === item.date) renderTicketStep(item.date);
     });
     list.appendChild(row);
   });
@@ -406,6 +410,7 @@ function addToCart(date, username) {
   persistCart();
   updateCartUI();
   renderCalendar();
+  if (document.getElementById("ticketStepSection")) renderTicketStep(date);
   showToast(`Added @${username} for ${formatDateLong(date)} to your cart.`);
   return true;
 }
@@ -423,6 +428,94 @@ const tosFooterBtn = document.getElementById("tosFooterBtn");
 if (tosFooterBtn) tosFooterBtn.addEventListener("click", () => showModal("modalTerms"));
 
 /* ==========================================================================
+   STEP 2 — TICKET SELECTION FOR THE CHOSEN DAY
+   Clicking a bookable day on the calendar opens this section (instead of
+   jumping straight to the username modal). From here you can add up to
+   MAX_PER_DAY_IN_CART tickets for that day directly, one at a time, each
+   backed by its own username (OAuth or manual) — mirroring a normal
+   ticket-shop "quantity stepper" step.
+   ========================================================================== */
+
+function showTicketStep(dateStr) {
+  const section = document.getElementById("ticketStepSection");
+  document.getElementById("stepTwoDateLabel").textContent = `Valid on ${formatDateLong(dateStr)}`;
+  section.style.display = "block";
+  renderTicketStep(dateStr);
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function hideTicketStep() {
+  document.getElementById("ticketStepSection").style.display = "none";
+  document.querySelector(".calendar-section").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderTicketStep(dateStr) {
+  const items = state.cart.filter((c) => c.date === dateStr);
+  const count = items.length;
+
+  document.getElementById("stepCount").textContent = count;
+  document.getElementById("stepTotalCount").textContent = `${count} ticket${count === 1 ? "" : "s"}`;
+  document.getElementById("stepPlusBtn").disabled = count >= MAX_PER_DAY_IN_CART;
+  document.getElementById("stepMinusBtn").disabled = count === 0;
+
+  const list = document.getElementById("stepTicketChips");
+  if (count === 0) {
+    list.innerHTML = `<div class="empty-note">No tickets added yet — tap + to add one.</div>`;
+    return;
+  }
+  list.innerHTML = "";
+  items.forEach((item) => {
+    const chip = document.createElement("div");
+    chip.className = "step-ticket-chip";
+    chip.innerHTML = `<span>@<strong>${item.username}</strong></span><button type="button">Remove</button>`;
+    chip.querySelector("button").addEventListener("click", () => {
+      state.cart = state.cart.filter((c) => c.id !== item.id);
+      persistCart();
+      updateCartUI();
+      renderCalendar();
+      renderTicketStep(dateStr);
+    });
+    list.appendChild(chip);
+  });
+}
+
+document.getElementById("stepBackBtn").addEventListener("click", hideTicketStep);
+
+document.getElementById("stepPlusBtn").addEventListener("click", () => {
+  const dateStr = state.pendingDate;
+  if (!dateStr) return;
+  if (cartCountForDate(dateStr) >= MAX_PER_DAY_IN_CART) {
+    showToast(`You can add at most ${MAX_PER_DAY_IN_CART} tickets for the same day.`, "error");
+    return;
+  }
+  document.getElementById("pickDateLabel").textContent = `for ${formatDateLong(dateStr)}`;
+  document.getElementById("manualUsernameInput").value = "";
+  document.getElementById("manualUsernameHint").textContent = "";
+  showModal("modalGetUsername");
+});
+
+document.getElementById("stepMinusBtn").addEventListener("click", () => {
+  const dateStr = state.pendingDate;
+  if (!dateStr) return;
+  const items = state.cart.filter((c) => c.date === dateStr);
+  if (items.length === 0) return;
+  const last = items[items.length - 1];
+  state.cart = state.cart.filter((c) => c.id !== last.id);
+  persistCart();
+  updateCartUI();
+  renderCalendar();
+  renderTicketStep(dateStr);
+});
+
+document.getElementById("stepReviewBtn").addEventListener("click", () => {
+  if (state.cart.length === 0) {
+    showToast("Add at least one ticket first.", "error");
+    return;
+  }
+  showModal("modalCart");
+});
+
+/* ==========================================================================
    ADD-TO-CART FLOW (Roblox OAuth or manual username)
    ========================================================================== */
 
@@ -432,15 +525,8 @@ function openAddToCartFlow(dateStr) {
     showToast("This day isn't available.", "error");
     return;
   }
-  if (cartCountForDate(dateStr) >= MAX_PER_DAY_IN_CART) {
-    showToast(`You already have ${MAX_PER_DAY_IN_CART} tickets for this day in your cart.`, "error");
-    return;
-  }
   state.pendingDate = dateStr;
-  document.getElementById("pickDateLabel").textContent = `for ${formatDateLong(dateStr)}`;
-  document.getElementById("manualUsernameInput").value = "";
-  document.getElementById("manualUsernameHint").textContent = "";
-  showModal("modalGetUsername");
+  showTicketStep(dateStr);
 }
 
 document.getElementById("robloxOAuthBtn").addEventListener("click", () => {
@@ -470,7 +556,7 @@ document.getElementById("manualAddBtn").addEventListener("click", () => {
   }
   hint.textContent = "";
   if (addToCart(state.pendingDate, val)) {
-    hideAllModals();
+    hideModal("modalGetUsername");
   }
 });
 
@@ -492,7 +578,9 @@ async function resumeOAuthIfNeeded() {
   try {
     const result = await apiPost({ action: "ROBLOX_OAUTH_EXCHANGE", code, redirect_uri: REDIRECT_URI });
     if (result.username) {
+      state.pendingDate = pendingDate;
       addToCart(pendingDate, result.username);
+      showTicketStep(pendingDate);
     }
   } catch (err) {
     console.error(err);
@@ -535,6 +623,7 @@ document.getElementById("cartConfirmBtn").addEventListener("click", async () => 
 
   setButtonLoading(btn, false);
   hideAllModals();
+  document.getElementById("ticketStepSection").style.display = "none";
 
   if (succeeded.length > 0) {
     showSuccessModal(succeeded);
